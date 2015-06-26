@@ -1,0 +1,9 @@
+# Scribble Syntax Highlighting for Sublime Text
+
+This adds syntax highlighting to Sublime Text for [Scribble][1], the [Racket][2] documentation language. It uses the new syntax format, `sublime-syntax`, which is only supported in Sublime Text 3 betas.
+
+This is my first attempt at this so it is probably not complete. It seems to work pretty well in my usage, mostly due to the easy syntax of Scribble. Any improvement or suggestions are welcome.
+
+
+[1]: http://docs.racket-lang.org/scribble/
+[2]: http://racket-lang.org
