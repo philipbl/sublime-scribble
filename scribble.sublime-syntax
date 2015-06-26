@@ -1,0 +1,95 @@
+%YAML 1.2
+---
+name: Scribble
+file_extensions: [scrbl]
+scope: text.scrbl
+
+#### Grammar ####
+# TEXT_OR_COMMAND ::= TEXT
+#                   | START_COMMAND
+# TEXT          ::= [^@]+
+# START_COMMAND ::= "@" COMMAND
+#                   "@" COMMAND DATUM
+#                   "@" COMMAND TEXT_BODY
+#                   "@" COMMAND DATUM TEXT_BODY
+# COMMAND       ::= [a-z]
+# DATUM         ::= "[" KEYWORD | TEXT_OR_COMMAND | STRING "]"
+# KEYWORD       ::= "#:" [a-z]+
+# STRING        ::= "\"" [a-z]* "\""
+# TEXT_BODY     ::= "{" TEXT_OR_COMMAND "}"
+
+contexts:
+  main:
+    - match: '#lang scribble.*?\n'
+      scope: comment.scrbl
+
+    - match: '@;.*?\n'
+      scope: comment.scrbl
+
+    - match: '@'
+      scope: entity.at.scrbl
+      push: start_command
+
+  start_command:
+    - match: '\s'
+      scope: entity.end_command.scrbl
+      pop: true
+
+    - match: '\('
+      scope: entity.start_racket.scrbl
+      set: racket_code_start
+
+    - match: '\['
+      scope: entity.start_datum.scrbl
+      set: datum
+
+    - match: '{'
+      scope: entity.start_text_body.scrbl
+      set: text_body
+
+    - match: '[^\s\[{]'
+      scope: entity.command.scrbl
+
+  datum:
+    - match: ']'
+      scope: entity.end_datum.scrbl
+      set: start_command
+
+    - match: '#:[^ ]+'
+      scope: keyword.scrbl
+
+    - match: '\".*?\"'
+      scope: string.string.scrbl
+
+    - include: main
+
+  text_body:
+    - match: '}'
+      scope: entity.end_text_body.scrbl
+      pop: true
+
+    - include: main
+
+  racket_code_start:
+    - match: '\)'
+      scope: entity.end_racket.scrbl
+      pop: true
+
+    - match: '\('
+      scope: keyword.start_racket_statement.scrbl
+      push: racket_code_cont
+
+    - match: '\".*?\"'
+      scope: string.string.scrbl
+
+  racket_code_cont:
+    - match: '\)'
+      scope: keyword.end_racket_statement.scrbl
+      pop: true
+
+    - match: '\".*?\"'
+      scope: string.string.scrbl
+
+    - match: '\('
+      scope: keyword.start_racket_statement.scrbl
+      push: racket_code_cont
